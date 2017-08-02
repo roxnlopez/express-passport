@@ -34,11 +34,14 @@ function postLogin(request, response, next) {
 }
 
 // GET /logout
-function getLogout(request, response) {
+function getLogout(request, response, next) {
+	request.logout();
+	response.redirect('/');
 }
 
 // Restricted page
 function secret(request, response){
+	response.render('secret.ejs', {message: request.flash('secretMessage')});
 }
 
 module.exports = {

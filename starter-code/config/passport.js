@@ -6,7 +6,7 @@ module.exports = function (passport) {
 
 	passport.serializeUser(function(user, callback) {
 		callback(null, user.id);
-	});
+	}); 
 
 	passport.deserializeUser(function(id, callback) {
 		User.findById(id, function(err, user) {
@@ -52,22 +52,13 @@ module.exports = function (passport) {
 			// Find a user with this e-mail
 	    User.findOne({ 'local.email' :  email }, function(err, user) {
 	      if (err) return callback(err);
-
-		      // If there already is a user with this email
-		      if (user) {
-			return callback(null, false, req.flash('signupMessage', 'This email is already used.'));
-		      } else {
-		      // There is no user registered with this email
-			// Create a new user
-			var newUser            = new User();
-			newUser.local.email    = email;
-			newUser.local.password = newUser.encrypt(password);
-
-			newUser.save(function(err) {
-			  if (err) throw err;
-			  return callback(null, newUser);
-			});
-			}
+		      if(!user) {
+		      	return callback(null, false, req.flash('loginMessage', 'No user found.'));
+		      }
+		      if (!user.validPassword(password)) {
+			return callback(null, false, req.flash('loginMessage', 'Oops! Wrong password.'));
+		      }
+		    return callback(null, user);
 		});
 	}));
 };
